@@ -105,7 +105,7 @@ Agora vamos baixar o código de exemplo:
 1️⃣ **Clone o repositório** no diretório de sua escolha:
 
 ```sh
-git clone https://github.com/fellowsheep/CGCCHIB.git
+git clone https://github.com/guilhermechagaskurtz/CGCCHIB.git
 ```
 Se você nunca usou o git, pode fazê-lo utilizando o 🔗 [Github Desktop](https://desktop.github.com/download/). Para isso, consulte o seguinte material:
 - [Tutorial de Entregas pelo Github](TutorialEntregasGithub.pdf)
