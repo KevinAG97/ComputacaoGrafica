@@ -1,6 +1,19 @@
 # Computação Gráfica - Híbrido
 
-Repositório de exemplos de códigos em C++ utilizando OpenGL moderna (3.3+) criado para a Atividade Acadêmica Computação Gráfica do curso de graduação em Ciência da Computação - modalidade híbrida - da Unisinos. Ele é estruturado para facilitar a organização dos arquivos e a compilação dos projetos utilizando CMake.
+## 🤖 Aluno
+
+```glsl
+// student.vert
+uniform struct Student {
+    string name  = "Kevin de Azevedo Garcia";
+    int    ra    = 1937232;
+    string curso = "Ciência da Computação";
+    string modal = "Híbrido";
+    string inst  = "Unisinos";
+} aluno;
+```
+
+Repositório de códigos em C++ utilizando OpenGL moderna (3.3+) criado para a Atividade Acadêmica Computação Gráfica do curso de graduação em Ciência da Computação - modalidade híbrida - da Unisinos.
 
 ## 📂 Estrutura do Repositório
 
