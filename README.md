@@ -31,18 +31,3 @@ Repositório de códigos em C++ utilizando OpenGL moderna (3.3+) criado para a A
 │   ├── Cubos3D.cpp           # 🔵Módulo 2
 ├── 📄 CMakeLists.txt         # Configuração do CMake para compilar os projetos
 ├── 📄 README.md              # Este arquivo, com a documentação do repositório
-
-```
-
-📂 COMPUTACAOGRAFICA/
- ├── 📂 assets/                # Guardo prints com o nome do desafio de cada módulo, texturas, fontes etc
- │   ├──                           
- │   │  ├── DesafioM1.jpeg     # Print Desafio do módulo 1
- │   │  ├── DesafioM2.jpeg     # Print Desafio do módulo 2
- │   │  ├──                    
- │        
- ├── 📂 src/                   # Código-fonte dos exemplos e exercícios
-+│   ├── Hello3D.cpp           # Módulo 1
- │   ├── Cubos3D.cpp           # Módulo 2
- ├── 📄 CMakeLists.txt         # Configuração do CMake para compilar os projetos
- ├── 📄 README.md              # Este arquivo, com a documentação do repositório
