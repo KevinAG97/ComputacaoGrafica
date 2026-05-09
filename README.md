@@ -30,4 +30,4 @@ Repositório de códigos em C++ utilizando OpenGL moderna (3.3+) criado para a A
 │   ├── Hello3D.cpp           # 🟢Módulo 1
 │   ├── Cubos3D.cpp           # 🔵Módulo 2
 ├── 📄 CMakeLists.txt         # Configuração do CMake para compilar os projetos
-├── 📄 README.md              # Este arquivo, com a documentação do repositório
+├── 📄 README.md              # Este arquivo, com a documentação do repositório 
