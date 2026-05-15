@@ -48,7 +48,7 @@ set(EXERCISES
     TriangleTex
     SpherePhong
     Cubos3D
-    Vicencial2
+    Vivencial2
    
 )
 
