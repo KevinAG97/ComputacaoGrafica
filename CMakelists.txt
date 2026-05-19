@@ -49,7 +49,8 @@ set(EXERCISES
     SpherePhong
     Cubos3D
     Vivencial2
-   
+    Modulo3
+
 )
 
 add_compile_options(-Wno-pragmas)
