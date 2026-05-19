@@ -24,12 +24,15 @@ Repositório de códigos em C++ utilizando OpenGL moderna (3.3+) criado para a A
 │   ├──                           
 │   │  ├── 🟢DesafioM1.jpeg     # Print Desafio do módulo 1
 │   │  ├── 🔵DesafioM2.png      # Print Desafio do módulo 2
-│   │  ├── 🔴Vivencial2.png     # Print da aula Vivencial do dia 09/05/2026            
+│   │  ├── 🔴Vivencial2.png     # Print da aula Vivencial do dia 09/05/2026   
+│   │  ├── 🟡DesafioM3.png      # Print Desafio do módulo 3
+│   │   
 │   │       
 ├── 📂 src/                   # Código-fonte dos exemplos e exercícios
 │   ├── Hello3D.cpp           # 🟢Módulo 1
 │   ├── Cubos3D.cpp           # 🔵Módulo 2
 │   ├── Vivencial2.cpp        # 🔴Vivencial 09/05/2026
+│   ├── Modulo3.cpp           # 🟡Módulo 3
 ├── 📄 CMakeLists.txt         # Configuração do CMake para compilar os projetos
 ├── 📄 README.md              # Este arquivo, com a documentação do repositório 
 
