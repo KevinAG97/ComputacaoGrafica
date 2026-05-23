@@ -50,6 +50,7 @@ set(EXERCISES
     Cubos3D
     Vivencial2
     Modulo3
+    VivencialM4
 
 )
 
