@@ -37,7 +37,7 @@ Repositório de códigos em C++ utilizando OpenGL moderna (3.3+) criado para a A
 │   ├── Vivencial2.cpp        # 🔴Vivencial 09/05/2026
 │   ├── Modulo3.cpp           # 🟡Módulo 3
 │   ├── VivencialM4.cpp       # 🟣Vivencial 26/05/2026
-│   ├── IluminaçãoM4.cpp      # 🟠Módulo 4
+│   ├── IluminacaoM4.cpp      # 🟠Módulo 4
 │   ├── DesafioM5.cpp         # 🟢Módulo 5
 │
 ├── 📄 CMakeLists.txt         # Configuração do CMake para compilar os projetos
