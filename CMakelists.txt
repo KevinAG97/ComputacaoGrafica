@@ -51,6 +51,7 @@ set(EXERCISES
     Vivencial2
     Modulo3
     VivencialM4
+    DesafioM5
 
 )
 
