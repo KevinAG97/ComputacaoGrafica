@@ -53,6 +53,7 @@ set(EXERCISES
     VivencialM4
     IluminacaoM4
     DesafioM5
+    DesafioM6
 
 )
 

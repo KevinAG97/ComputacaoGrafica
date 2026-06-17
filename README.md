@@ -29,6 +29,7 @@ Repositório de códigos em C++ utilizando OpenGL moderna (3.3+) criado para a A
 │   │  ├── 🟣Vivencial23-05-2026.png    # Print da aula Vivencial do dia 26/05/2026
 │   │  ├── ⚪DesafioM4.png              # Print Desafio do módulo 4
 │   │  ├── 🟠DesafioM5.png              # Print Desafio do módulo 5
+│   │  ├── 🟤DesafioM6.png              # Print Desafio do módulo 6
 │   │
 │   │       
 ├── 📂 src/                   # Código-fonte dos exemplos e exercícios
@@ -39,6 +40,7 @@ Repositório de códigos em C++ utilizando OpenGL moderna (3.3+) criado para a A
 │   ├── VivencialM4.cpp       # 🟣Vivencial 26/05/2026
 │   ├── IluminacaoM4.cpp      # 🟠Módulo 4
 │   ├── DesafioM5.cpp         # 🟢Módulo 5
+│   ├── DesafioM6.cpp         # 🟤Módulo 6
 │
 ├── 📄 CMakeLists.txt         # Configuração do CMake para compilar os projetos
 ├── 📄 README.md              # Este arquivo, com a documentação do repositório 
