@@ -30,7 +30,9 @@ Repositório de códigos em C++ utilizando OpenGL moderna (3.3+) criado para a A
 │   │  ├── ⚪DesafioM4.png              # Print Desafio do módulo 4
 │   │  ├── 🟠DesafioM5.png              # Print Desafio do módulo 5
 │   │  ├── 🟤DesafioM6.png              # Print Desafio do módulo 6
-│   │
+│   │  ├── 🤖
+│   │       ├── 📁Modelos3D             # Local em que coloquei os modelos que criei
+│   │  
 │   │       
 ├── 📂 src/                   # Código-fonte dos exemplos e exercícios
 │   ├── Hello3D.cpp           # 🟢Módulo 1
@@ -41,6 +43,7 @@ Repositório de códigos em C++ utilizando OpenGL moderna (3.3+) criado para a A
 │   ├── IluminacaoM4.cpp      # 🟠Módulo 4
 │   ├── DesafioM5.cpp         # 🟢Módulo 5
 │   ├── DesafioM6.cpp         # 🟤Módulo 6
+│   ├── ProvaBG.cpp           # 🤖Código fonte da prova do GB
 │
 ├── 📄 CMakeLists.txt         # Configuração do CMake para compilar os projetos
 ├── 📄 README.md              # Este arquivo, com a documentação do repositório 
