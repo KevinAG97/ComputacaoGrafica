@@ -10,28 +10,42 @@ extern "C" { __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerfor
  * Hierarquia de cena:
  *   theatrical_drag_show  (root / palco)
  *   pillar                (centro do palco)
- *   rupaul                (sobre o pillar)
- *   umbrella x4           (setup de studio: frente/tras/esquerda/direita)
- *   sign                  (parede do fundo)
- *   microphone            (proximo ao busto, animado em Bezier cubica)
- *   camera x2             (orbitais, animadas em Bezier)
+ *   rupaul                (sobre o pillar, animada com Z/X)
+ *   microphone            (ao lado da rupaul, animado em curva de Bezier)
+ *   camera_1 / camera_2   (orbitais 360, animadas com sin/cos)
+ *   lustre x3             (no teto, sao as 3 fontes de luz principais)
+ *   foto x3               (quads com fotos da RuPaul na parede do fundo)
+ *   letreiro              (parede do fundo, acima das fotos)
+ *   batom                 (ao lado da RuPaul, controlavel pelo usuario)
  *
- * Controles:
- *   1..0          : selecionar objeto (1=stage, 2=pillar, 3=rupaul,
- *                   4-7=umbrellas, 8=sign, 9=mic, 0=cam1)
- *   W/S           : transladar Z
- *   A/D           : transladar X
- *   Q/E           : transladar Y
- *   Setas         : rotacionar (X/Y)
- *   +/-           : escala uniforme
- *   T             : toggle textura (useTexture 0/1)
- *   L             : cicla Key / Fill / Back / Todas as luzes
- *   Espaco        : pause/resume animacao Bezier
- *   ESC           : sair
+ * Luzes (teclas 1-8):
+ *   1 : Key Light   — lustre central (luz quente principal)
+ *   2 : Fill Light  — lustre esquerda (luz fria, preenche sombras)
+ *   3 : Back Light  — lustre direita (separa sujeito do fundo)
+ *   4 : Spotlight camera_1 (segue a camera em orbita)
+ *   5 : Spotlight camera_2 (segue a camera em orbita)
+ *   6 : Face top    — luz de rosto superior
+ *   7 : Face left   — luz de rosto esquerda
+ *   8 : Face right  — luz de rosto direita
  *
- * Camera de visualizacao orbital:
- *   Botao esquerdo pressionado + arrastar : rotacionar
- *   Scroll                                : zoom
+ * Animacoes:
+ *   SPACE : pause/resume microfone (curva de Bezier cubica)
+ *   P     : pause/resume orbita das cameras (sin/cos)
+ *
+ * Camera:
+ *   F                              : alterna Orbital <-> FPS
+ *   Orbital: mouse drag + scroll   : rotacionar / zoom
+ *   FPS: W/A/S/D                   : mover   Q/E: subir/descer
+ *        mouse                     : olhar ao redor
+ *
+ * Objetos:
+ *   Z / X        : rotacionar RuPaul no proprio eixo Y
+ *   Setas / Y / U: mover batom (X/Z/Y)
+ *   C / V        : rotacionar batom no eixo Y
+ *   B / N        : escala uniforme do batom
+ *   T            : toggle textura global (useTexture 0=cor / 1=.mtl)
+ *   L            : listar estado atual de todas as luzes no console
+ *   ESC          : sair
  */
 
 #include <iostream>
@@ -1141,17 +1155,27 @@ GLuint generateQuad(float w, float h, int& nVertices)
 void printControls(const vector<OBJModel>& objects)
 {
     cout << "\n========== ProvaGB - Demonstracao Tecnica ==========\n";
-    cout << "Controle de luzes (guarda-chuvas de studio):\n";
-    cout << "  Tecla 1    : toggle umbrella_frente  (Key Light)\n";
-    cout << "  Tecla 2    : toggle umbrella_tras    (Fill Light)\n";
-    cout << "  Tecla 3    : toggle umbrella_esquerda(Back Light)\n";
-    cout << "  Tecla 4    : toggle umbrella_direita (Aux Light)\n";
-    cout << "\nDemais controles:\n";
-    cout << "  T          : toggle textura global (useTexture 0=cor / 1=.mtl)\n";
-    cout << "  L          : alterna ON/OFF de cada luz Phong em ciclo\n";
-    cout << "  Espaco     : pause/resume animacao Bezier\n";
-    cout << "  Mouse drag : rotacionar camera orbital\n";
-    cout << "  Scroll     : zoom\n";
-    cout << "  ESC        : sair\n";
+    cout << "Luzes (teclas 1-8):\n";
+    cout << "  1 : Key Light   (lustre central)\n";
+    cout << "  2 : Fill Light  (lustre esquerda)\n";
+    cout << "  3 : Back Light  (lustre direita)\n";
+    cout << "  4 : Spotlight camera_1\n";
+    cout << "  5 : Spotlight camera_2\n";
+    cout << "  6 : Face top    7 : Face left    8 : Face right\n";
+    cout << "\nAnimacoes:\n";
+    cout << "  SPACE : pause/resume microfone (Bezier)\n";
+    cout << "  P     : pause/resume orbita das cameras\n";
+    cout << "\nCamera:\n";
+    cout << "  F              : alterna Orbital <-> FPS\n";
+    cout << "  Orbital        : mouse drag + scroll\n";
+    cout << "  FPS            : W/A/S/D/Q/E + mouse\n";
+    cout << "\nObjetos:\n";
+    cout << "  Z / X          : rotacionar RuPaul\n";
+    cout << "  Setas / Y / U  : mover batom (X/Z/Y)\n";
+    cout << "  C / V          : rotacionar batom\n";
+    cout << "  B / N          : escala batom\n";
+    cout << "  T              : toggle textura (0=cor / 1=.mtl)\n";
+    cout << "  L              : listar estado das luzes\n";
+    cout << "  ESC            : sair\n";
     cout << "====================================================\n\n";
 }
