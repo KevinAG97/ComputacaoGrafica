@@ -54,6 +54,7 @@ set(EXERCISES
     IluminacaoM4
     DesafioM5
     DesafioM6
+    ProvaGB
 
 )
 
