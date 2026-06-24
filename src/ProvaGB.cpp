@@ -211,6 +211,55 @@ vec3 bezier(float t, vec3 p0, vec3 p1, vec3 p2, vec3 p3)
 }
 
 // =========================================================
+//  Camera FPS
+// =========================================================
+enum CameraDirection { FORWARD, BACKWARD, LEFT, RIGHT, UP, DOWN };
+
+class Camera
+{
+public:
+    vec3  position  = vec3(0.0f, -3.0f, 8.0f);
+    vec3  front, up, right, worldUp;
+    float yaw = -90.0f, pitch = 0.0f;
+    float speed = 5.0f, sensitivity = 0.12f, fov = 45.0f;
+
+    Camera() : worldUp(vec3(0,1,0)) { update(); }
+
+    mat4 getView() const { return lookAt(position, position + front, up); }
+
+    void mover(CameraDirection d, float dt) {
+        float v = speed * dt;
+        if (d == FORWARD)  position += front   * v;
+        if (d == BACKWARD) position -= front   * v;
+        if (d == LEFT)     position -= right   * v;
+        if (d == RIGHT)    position += right   * v;
+        if (d == UP)       position += worldUp * v;
+        if (d == DOWN)     position -= worldUp * v;
+    }
+
+    void rotacionar(float dx, float dy) {
+        yaw   += dx * sensitivity;
+        pitch += dy * sensitivity;
+        if (pitch >  89.0f) pitch =  89.0f;
+        if (pitch < -89.0f) pitch = -89.0f;
+        update();
+    }
+
+    void zoom(float y) { fov -= y; fov = clamp(fov, 5.0f, 90.0f); }
+
+private:
+    void update() {
+        vec3 f;
+        f.x = cos(radians(yaw)) * cos(radians(pitch));
+        f.y = sin(radians(pitch));
+        f.z = sin(radians(yaw)) * cos(radians(pitch));
+        front = normalize(f);
+        right = normalize(cross(front, worldUp));
+        up    = normalize(cross(right, front));
+    }
+};
+
+// =========================================================
 //  Globals
 // =========================================================
 const GLuint WIDTH = 1920, HEIGHT = 1080;
@@ -225,11 +274,15 @@ bool  gMouseDown = false;
 float gLastX     = WIDTH  / 2.0f;
 float gLastY     = HEIGHT / 2.0f;
 
-// Estado de cada guarda-chuva de studio (1=ON, 0=OFF)
-// Teclas 1-4 alternam cada um; a cor enviada ao shader e zerада quando OFF
+// Camera FPS
+Camera    gFPSCam;
+bool      gFPSMode    = false;  // F: alterna orbital <-> FPS
+bool      gFirstMouse = true;
+
 bool gLightStatus[9] = { true, true, true, false, true, true, true, true, true };
 
-bool gAnimating = true;
+bool gAnimating     = true;  // microfone (Bezier) — SPACE
+bool gCamsAnimating = true;  // cameras orbitais  — P
 
 vector<OBJModel>* gObjects = nullptr;
 
@@ -436,6 +489,32 @@ int main()
         }
     }
 
+    // Letreiro — parede do fundo, acima do quadro central
+    {
+        OBJModel m;
+        m.name     = "letreiro";
+        m.color    = vec3(1.0f, 0.9f, 0.2f);
+        m.position = vec3(0.0f, 0.5f, -12.3f);
+        m.scale    = 3.0f;
+        m.VAO      = loadOBJWithNormals(
+            BASE + "letreiro/Meshy_AI_dragrace_0624200741_texture.obj",
+            m.nVertices, m.texID, m.color);
+        objects.push_back(m);
+    }
+
+    // Batom — ao lado da RuPaul (que esta em 0, -5.2, -7.2)
+    {
+        OBJModel m;
+        m.name     = "batom";
+        m.color    = vec3(0.8f, 0.1f, 0.2f);
+        m.position = vec3(2.0f, -5.2f, -7.0f);
+        m.scale    = 1.0f;
+        m.VAO      = loadOBJWithNormals(
+            BASE + "batom/Meshy_AI_Classic_elegant_green_0624184455_texture.obj",
+            m.nVertices, m.texID, m.color);
+        objects.push_back(m);
+    }
+
     if (objects.empty()) {
         cerr << "Nenhum modelo carregado. Encerrando." << endl;
         glfwTerminate();
@@ -512,6 +591,16 @@ int main()
 
         glfwPollEvents();
 
+        // Movimento FPS (so ativo no modo FPS)
+        if (gFPSMode) {
+            if (glfwGetKey(window, GLFW_KEY_W)          == GLFW_PRESS) gFPSCam.mover(FORWARD,  deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_S)          == GLFW_PRESS) gFPSCam.mover(BACKWARD, deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_A)          == GLFW_PRESS) gFPSCam.mover(LEFT,     deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_D)          == GLFW_PRESS) gFPSCam.mover(RIGHT,    deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_Q)          == GLFW_PRESS) gFPSCam.mover(UP,       deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_E)          == GLFW_PRESS) gFPSCam.mover(DOWN,     deltaTime);
+        }
+
         // Z / X: girar a RuPaul no proprio eixo Y (objeto index 2)
         if ((int)objects.size() > 2) {
             const float rSpd = 60.0f * deltaTime;
@@ -521,21 +610,47 @@ int main()
                 objects[2].rotation.y += rSpd;
         }
 
-        // Animacoes
-        if (gAnimating) {
-            float T = currentFrame;
+        // Setas / Y / U: mover o batom (ultimo objeto)
+        // C / V: rotacionar o batom no eixo Y
+        // B / N: escala uniforme do batom
+        if (!objects.empty()) {
+            auto& batom = objects.back();
+            const float tSpd = 2.0f  * deltaTime;
+            const float rSpd = 60.0f * deltaTime;
+            const float sSpd = 0.5f  * deltaTime;
 
-            // Microphone: Bezier ping-pong (subida/descida suave)
+            if (glfwGetKey(window, GLFW_KEY_LEFT)  == GLFW_PRESS) batom.position.x -= tSpd;
+            if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) batom.position.x += tSpd;
+            if (glfwGetKey(window, GLFW_KEY_UP)    == GLFW_PRESS) batom.position.z -= tSpd;
+            if (glfwGetKey(window, GLFW_KEY_DOWN)  == GLFW_PRESS) batom.position.z += tSpd;
+            if (glfwGetKey(window, GLFW_KEY_Y)     == GLFW_PRESS) batom.position.y += tSpd;
+            if (glfwGetKey(window, GLFW_KEY_U)     == GLFW_PRESS) batom.position.y -= tSpd;
+
+            if (glfwGetKey(window, GLFW_KEY_C)     == GLFW_PRESS) batom.rotation.y -= rSpd;
+            if (glfwGetKey(window, GLFW_KEY_V)     == GLFW_PRESS) batom.rotation.y += rSpd;
+
+            if (glfwGetKey(window, GLFW_KEY_B)     == GLFW_PRESS) batom.scale += sSpd;
+            if (glfwGetKey(window, GLFW_KEY_N)     == GLFW_PRESS) {
+                batom.scale -= sSpd;
+                if (batom.scale < 0.05f) batom.scale = 0.05f;
+            }
+        }
+
+        // Microphone: Bezier ping-pong independente
+        if (gAnimating) {
             bezierTime += deltaTime * 0.1f;
             float traw = fmod(bezierTime, 2.0f);
             float t    = (traw > 1.0f) ? (2.0f - traw) : traw;
             if ((int)objects.size() > 3)
                 objects[3].position = bezier(t, micP0, micP1, micP2, micP3);
+        }
 
-            // Cameras: orbita circular 360 em lados opostos, subindo e descendo
-            float angle1 = T * camSpeed;               // camera_1
-            float angle2 = angle1 + pi<float>();       // camera_2: lado oposto (+180 graus)
-            float bobY   = sin(T * 0.5f) * 1.0f;      // oscilacao vertical lenta
+        // Cameras: orbita circular — pausavel com SPACE
+        if (gCamsAnimating) {
+            float T = currentFrame;
+            float angle1 = T * camSpeed;
+            float angle2 = angle1 + pi<float>();
+            float bobY   = sin(T * 0.5f) * 1.0f;
 
             if ((int)objects.size() > 4) {
                 vec3 p1 = vec3(
@@ -546,7 +661,6 @@ int main()
                 float dx1 = camCenter.x - p1.x;
                 float dz1 = camCenter.z - p1.z;
                 objects[4].rotation.y = degrees(atan2(dx1, dz1)) + 90.0f;
-                // Luz da camera_1 segue a posicao da lente
                 gLights[4].position = p1;
             }
             if ((int)objects.size() > 5) {
@@ -558,7 +672,6 @@ int main()
                 float dx2 = camCenter.x - p2.x;
                 float dz2 = camCenter.z - p2.z;
                 objects[5].rotation.y = degrees(atan2(dx2, dz2)) + 90.0f;
-                // Luz da camera_2 segue a posicao da lente
                 gLights[5].position = p2;
             }
         }
@@ -566,18 +679,20 @@ int main()
         glClearColor(0.04f, 0.04f, 0.07f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Camera orbital de visualizacao
+        // MATRIZ VIEW e PROJECTION — modo orbital ou FPS (tecla F alterna)
+        mat4 view, proj;
         vec3 eye;
-        eye.x = gCamRadius * cos(radians(gCamPitch)) * cos(radians(gCamYaw));
-        eye.y = gCamRadius * sin(radians(gCamPitch));
-        eye.z = gCamRadius * cos(radians(gCamPitch)) * sin(radians(gCamYaw));
-
-        // MATRIZ VIEW — posicao e orientacao da camera
-        // alvo no centro da cena (RuPaul + pillar estao em Z=-2, Y~0)
-        mat4 view = lookAt(eye, vec3(0.0f, -4.0f, -2.0f), vec3(0.0f, 1.0f, 0.0f));
-
-        // MATRIZ PROJECTION — perspectiva
-        mat4 proj = perspective(radians(45.0f), (float)WIDTH / HEIGHT, 0.1f, 200.0f);
+        if (gFPSMode) {
+            eye  = gFPSCam.position;
+            view = gFPSCam.getView();
+            proj = perspective(radians(gFPSCam.fov), (float)WIDTH / HEIGHT, 0.1f, 200.0f);
+        } else {
+            eye.x = gCamRadius * cos(radians(gCamPitch)) * cos(radians(gCamYaw));
+            eye.y = gCamRadius * sin(radians(gCamPitch));
+            eye.z = gCamRadius * cos(radians(gCamPitch)) * sin(radians(gCamYaw));
+            view  = lookAt(eye, vec3(0.0f, -4.0f, -2.0f), vec3(0.0f, 1.0f, 0.0f));
+            proj  = perspective(radians(45.0f), (float)WIDTH / HEIGHT, 0.1f, 200.0f);
+        }
 
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, value_ptr(proj));
@@ -694,10 +809,29 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
                      << (gLightStatus[i] ? "ON" : "OFF") << endl;
         }
 
-        // Espaco — pause/resume animacao Bezier
+        // SPACE — pause/resume animacao Bezier do microfone
         if (key == GLFW_KEY_SPACE) {
             gAnimating = !gAnimating;
-            cout << "Animacao Bezier: " << (gAnimating ? "LIGADA" : "PAUSADA") << endl;
+            cout << "Microfone Bezier: " << (gAnimating ? "LIGADO" : "PAUSADO") << endl;
+        }
+
+        // P — pause/resume orbita das cameras
+        if (key == GLFW_KEY_P) {
+            gCamsAnimating = !gCamsAnimating;
+            cout << "Cameras: " << (gCamsAnimating ? "ORBITANDO" : "PAUSADAS") << endl;
+        }
+
+        // F — alterna entre camera orbital e camera FPS
+        if (key == GLFW_KEY_F) {
+            gFPSMode = !gFPSMode;
+            gFirstMouse = true;
+            if (gFPSMode) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                cout << "Camera: FPS (W/A/S/D/Q/E + mouse)" << endl;
+            } else {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                cout << "Camera: Orbital (mouse drag + scroll)" << endl;
+            }
         }
     }
 }
@@ -723,6 +857,15 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 // =========================================================
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+    if (gFPSMode) {
+        if (gFirstMouse) { gLastX = (float)xpos; gLastY = (float)ypos; gFirstMouse = false; }
+        float dx =  (float)xpos - gLastX;
+        float dy =  gLastY - (float)ypos;
+        gLastX = (float)xpos;
+        gLastY = (float)ypos;
+        gFPSCam.rotacionar(dx, dy);
+        return;
+    }
     if (!gMouseDown) return;
     float dx = (float)xpos - gLastX;
     float dy = (float)ypos - gLastY;
@@ -739,6 +882,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 // =========================================================
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    if (gFPSMode) { gFPSCam.zoom((float)yoffset); return; }
     gCamRadius -= (float)yoffset * 0.5f;
     if (gCamRadius <  2.0f) gCamRadius =  2.0f;
     if (gCamRadius > 50.0f) gCamRadius = 50.0f;
