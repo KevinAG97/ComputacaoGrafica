@@ -473,9 +473,9 @@ int main()
             m.name     = "lustre_" + to_string(i + 1);
             m.color    = vec3(0.9f, 0.85f, 0.7f);
             m.position = lustrePos[i];
-            m.scale    = 1.0f;
+            m.scale    = 30.0f;
             m.VAO      = loadOBJWithNormals(
-                BASE + "lustres/Meshy_AI_Tiered_Crystal_Chande_0624010343_texture.obj",
+                BASE + "lustres/Meshy_AI_Tiered_Crystal_Chande_0624215655_texture.obj",
                 m.nVertices, m.texID, m.color);
             objects.push_back(m);
         }
